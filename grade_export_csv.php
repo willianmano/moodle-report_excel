@@ -176,35 +176,32 @@ class grade_export_csv extends grade_export {
     $fields[] = $obj;
 
     // Sets the list of custom profile fields
-    $customprofilefields = array_map('trim', explode(',', $CFG->grade_export_customprofilefields . 'group'));
+    $customprofilefields = array_map('trim', explode(',', $CFG->grade_export_customprofilefields));
     if ($includecustomfields && !empty($customprofilefields)) {
-      list($wherefields, $whereparams) = $DB->get_in_or_equal($customprofilefields);
-      $customfields = $DB->get_records_sql("SELECT f.*
-        FROM {user_info_field} f
-        JOIN {user_info_category} c ON f.categoryid=c.id
-        WHERE f.shortname $wherefields
-        ORDER BY c.sortorder ASC, f.sortorder ASC", $whereparams);
-        if (!is_array($customfields)) {
-          continue;
-        }
+        list($wherefields, $whereparams) = $DB->get_in_or_equal($customprofilefields);
+        $customfields = $DB->get_records_sql("SELECT f.*
+                                                FROM {user_info_field} f
+                                                JOIN {user_info_category} c ON f.categoryid=c.id
+                                                WHERE f.shortname $wherefields
+                                                ORDER BY c.sortorder ASC, f.sortorder ASC", $whereparams);
 
         foreach ($customfields as $field) {
-          // Make sure we can display this custom field
-          if (!in_array($field->shortname, $customprofilefields)) {
-            continue;
-          } else if (in_array($field->shortname, $hiddenfields)) {
-            continue;
-          } else if ($field->visible != PROFILE_VISIBLE_ALL && !$canseehiddenfields) {
-            continue;
-          }
+            // Make sure we can display this custom field
+            if (!in_array($field->shortname, $customprofilefields)) {
+                continue;
+            } else if (in_array($field->shortname, $hiddenfields)) {
+                continue;
+            } else if ($field->visible != PROFILE_VISIBLE_ALL && !$canseehiddenfields) {
+                continue;
+            }
 
-          $obj = new stdClass();
-          $obj->customid  = $field->id;
-          $obj->shortname = $field->shortname;
-          $obj->fullname  = format_string($field->name);
-          $obj->datatype  = $field->datatype;
-          $obj->default   = $field->defaultdata;
-          $fields[] = $obj;
+            $obj = new stdClass();
+            $obj->customid  = $field->id;
+            $obj->shortname = $field->shortname;
+            $obj->fullname  = format_string($field->name);
+            $obj->datatype  = $field->datatype;
+            $obj->default   = $field->defaultdata;
+            $fields[] = $obj;
         }
       }
 

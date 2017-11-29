@@ -24,7 +24,7 @@ $id = required_param('id', PARAM_INT); // course id
 $PAGE->set_url('/grade/export/csv/index.php', array('id'=>$id));
 
 if (!$course = $DB->get_record('course', array('id'=>$id))) {
-    print_error('nocourseid');
+    print_error('invalidcourseid');
 }
 
 require_login($course);
@@ -63,4 +63,3 @@ echo '<div class="clearer"></div>';
 $mform->display();
 
 echo $OUTPUT->footer();
-

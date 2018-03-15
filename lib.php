@@ -147,10 +147,13 @@ class csv_graded_users_iterator {
 
         $params = array_merge($params, $enrolledparams, $relatedctxparams);
 
-        $groupfields = '';
+        $groupfields = ', go.name as groupname';
         if ($this->groupid) {
-            $groupsql = "INNER JOIN {groups_members} gm ON gm.userid = u.id";
+            $groupsql = "INNER JOIN {groups_members} gm ON gm.userid = u.id 
+                         INNER JOIN {groups} go ON gm.groupid = go.id";
+
             $groupwheresql = "AND gm.groupid = :groupid";
+
             // $params contents: gradebookroles
             $params['groupid'] = $this->groupid;
         } else {
@@ -159,8 +162,6 @@ class csv_graded_users_iterator {
             
             $groupwheresql = "AND go.courseid = :groupcourseid";
             $params['groupcourseid'] = $this->course->id;
-
-            $groupfields = ', go.name as groupname';
         }
 
         if (empty($this->sortfield1)) {
@@ -201,15 +202,15 @@ class csv_graded_users_iterator {
             }
         }
 
-        $users_sql = "SELECT $userfields $ofields $groupfields
+        $users_sql = "SELECT DISTINCT $userfields $ofields $groupfields
                         FROM {user} u
                         JOIN ($enrolledsql) je ON je.id = u.id
                              $groupsql $customfieldssql
                         JOIN (
                                   SELECT DISTINCT ra.userid
                                     FROM {role_assignments} ra
-                                   WHERE ra.roleid $gradebookroles_sql
-                                     AND ra.contextid $relatedctxsql
+                                  WHERE ra.roleid $gradebookroles_sql
+                                    AND ra.contextid $relatedctxsql
                              ) rainner ON rainner.userid = u.id
                          WHERE u.deleted = 0
                              $groupwheresql

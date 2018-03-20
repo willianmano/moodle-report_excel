@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -16,14 +15,14 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 require_once '../../../config.php';
-require_once $CFG->dirroot.'/grade/export/lib.php';
+require_once $CFG->dirroot . '/grade/export/lib.php';
 require_once 'grade_export_csv.php';
 
-$id = required_param('id', PARAM_INT); // course id
+$id = required_param('id', PARAM_INT); // Course id.
 
-$PAGE->set_url('/grade/export/csv/index.php', array('id'=>$id));
+$PAGE->set_url('/grade/export/csv/index.php', array('id' => $id));
 
-if (!$course = $DB->get_record('course', array('id'=>$id))) {
+if (!$course = $DB->get_record('course', array('id' => $id))) {
     print_error('invalidcourseid');
 }
 
@@ -33,7 +32,8 @@ $context = context_course::instance($id);
 require_capability('moodle/grade:export', $context);
 require_capability('gradeexport/csv:view', $context);
 
-print_grade_page_head($COURSE->id, 'export', 'csv', get_string('exportto', 'grades') . ' ' . get_string('pluginname', 'gradeexport_csv'));
+$heading = get_string('exportto', 'grades') . ' ' . get_string('pluginname', 'gradeexport_csv');
+print_grade_page_head($COURSE->id, 'export', 'csv', $heading);
 export_verify_grades($COURSE->id);
 
 if (!empty($CFG->gradepublishing)) {
@@ -49,7 +49,7 @@ $formoptions = array(
 
 $mform = new grade_export_form($actionurl, $formoptions);
 
-$groupmode    = groups_get_course_groupmode($course);   // Groups are being used
+$groupmode = groups_get_course_groupmode($course);   // Groups are being used.
 $currentgroup = groups_get_course_group($course, true);
 if ($groupmode == SEPARATEGROUPS and !$currentgroup and !has_capability('moodle/site:accessallgroups', $context)) {
     echo $OUTPUT->heading(get_string("notingroup"));
@@ -57,7 +57,7 @@ if ($groupmode == SEPARATEGROUPS and !$currentgroup and !has_capability('moodle/
     die;
 }
 
-groups_print_course_menu($course, 'index.php?id='.$id);
+groups_print_course_menu($course, 'index.php?id=' . $id);
 echo '<div class="clearer"></div>';
 
 $mform->display();
